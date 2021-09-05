@@ -1,10 +1,7 @@
 package br.com.unknown.cadmed.controller;
 
-import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
-import javax.transaction.Transactional;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,85 +18,45 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.unknown.cadmed.controller.dto.GrupoMedicamentoDto;
 import br.com.unknown.cadmed.controller.form.GrupoMedicamentoForm;
-import br.com.unknown.cadmed.modelo.GrupoMedicamento;
-import br.com.unknown.cadmed.repository.GrupoMedicamentoRepository;
+import br.com.unknown.cadmed.service.GrupoMedicamentoService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
-
+@Api(value="API Rest cadastro de grupos de medicamentos")
 @RestController
 @RequestMapping("/grupos")
 public class GruposMedicamentoController 
 {
 	@Autowired
-	private GrupoMedicamentoRepository grupoMedicamentoRepository;
+	private GrupoMedicamentoService grupoMedicamentoService;
 	
+	@ApiOperation(value="retorna lista de grupos")
 	@GetMapping
 	public List<GrupoMedicamentoDto> lista() 
 	{
-		List<GrupoMedicamento> grupos = grupoMedicamentoRepository.findAll();
-		return GrupoMedicamentoDto.converter(grupos);
-
+		return grupoMedicamentoService.lista();
 	}
 
 
-
+	@ApiOperation(value="cadastra um grupo no banco de dados")
 	@PostMapping
-	@Transactional
 	public ResponseEntity<GrupoMedicamentoDto> cadastrar(@RequestBody @Valid GrupoMedicamentoForm form, UriComponentsBuilder uriBuilder) 
 	{		
-		GrupoMedicamento grupoMedicamento = form.converter();	
-		
-		List<GrupoMedicamento> listaGrupos = grupoMedicamentoRepository.findAll();
-
-		try 
-		{//metodo q joga excecao se for igual
-			validaUnico(listaGrupos, grupoMedicamento);
-			grupoMedicamentoRepository.save(grupoMedicamento);
-			URI uri = uriBuilder.path("/grupos/{id}").buildAndExpand(grupoMedicamento.getId()).toUri();
-			return ResponseEntity.created(uri).body(new GrupoMedicamentoDto(grupoMedicamento));		
-		}
-		catch(RuntimeException ex)
-		{//deixei o badRequest provisoriamente
-			return ResponseEntity.badRequest().build();
-		}		
-	
+		return grupoMedicamentoService.cadastrar(form, uriBuilder);		
 	}
 
-	
-	private void validaUnico (List<GrupoMedicamento> listaGrupos, GrupoMedicamento grupoMedicamento) 
-	throws RuntimeException{
-		RuntimeException ex = new RuntimeException();
-		for(GrupoMedicamento item : listaGrupos)
-		{
-			if (item.getNome().equals(grupoMedicamento.getNome()))
-				throw ex;
-		}			
-	}
-
-
+	@ApiOperation(value="edita um grupo no banco de dados")
 	@PutMapping("/{id}")
-	@Transactional //comita no final do metodo
 	public ResponseEntity<GrupoMedicamentoDto> atualizar(@PathVariable Long id, @RequestBody @Valid GrupoMedicamentoForm form)
 	{
-		Optional<GrupoMedicamento> optional = grupoMedicamentoRepository.findById(id);
-		if (optional.isPresent())
-		{
-			GrupoMedicamento grupoMedicamento = form.atualizar(id, grupoMedicamentoRepository);
-			return ResponseEntity.ok(new GrupoMedicamentoDto(grupoMedicamento));
-		}
-		return ResponseEntity.notFound().build();
+		return grupoMedicamentoService.atualizar(id, form);
 	}
 
+	@ApiOperation(value="exclui um grupo do banco de dados")
 	@DeleteMapping("/{id}")
-	@Transactional //comita no final do metodo
 	public ResponseEntity<?> remover(@PathVariable Long id)
 	{
-		Optional<GrupoMedicamento> optional = grupoMedicamentoRepository.findById(id);
-		if (optional.isPresent())
-		{
-			grupoMedicamentoRepository.deleteById(id);
-			return ResponseEntity.ok().build();
-		}
-		return ResponseEntity.notFound().build();
+		return grupoMedicamentoService.remover(id);
 	}
 
 }

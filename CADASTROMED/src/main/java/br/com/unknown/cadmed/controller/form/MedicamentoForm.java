@@ -5,14 +5,13 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Length;
 
-import br.com.unknown.cadmed.config.validacao.LaboratorioEGrupoMedExistem;
 import br.com.unknown.cadmed.modelo.GrupoMedicamento;
 import br.com.unknown.cadmed.modelo.Laboratorio;
 import br.com.unknown.cadmed.modelo.Medicamento;
 import br.com.unknown.cadmed.repository.GrupoMedicamentoRepository;
 import br.com.unknown.cadmed.repository.LaboratorioRepository;
 
-@LaboratorioEGrupoMedExistem
+
 public class MedicamentoForm 
 {
 	@NotNull @NotEmpty @Length(min=5)

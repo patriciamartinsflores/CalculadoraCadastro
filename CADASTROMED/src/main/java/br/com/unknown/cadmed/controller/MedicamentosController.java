@@ -14,106 +14,55 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
-import java.util.List;
-import java.util.Optional;
 
-import javax.transaction.Transactional;
+import java.util.List;
+
+
+
 import javax.validation.Valid;
 
-import br.com.unknown.cadmed.modelo.Medicamento;
-import br.com.unknown.cadmed.repository.GrupoMedicamentoRepository;
-import br.com.unknown.cadmed.repository.LaboratorioRepository;
-import br.com.unknown.cadmed.repository.MedicamentoRepository;
+import br.com.unknown.cadmed.service.MedicamentoService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import br.com.unknown.cadmed.controller.dto.MedicamentoDto;
 import br.com.unknown.cadmed.controller.form.AtualizacaoMedicamentoForm;
 import br.com.unknown.cadmed.controller.form.MedicamentoForm;
 
+
+@Api(value="API Rest cadastro de medicamentos")
 @RestController
 @RequestMapping("/medicamentos")
 public class MedicamentosController {
 	
 	@Autowired
-	private MedicamentoRepository medicamentoRepository;
-	@Autowired
-	private GrupoMedicamentoRepository grupoMedicamentoRepository;
-	@Autowired
-	private LaboratorioRepository laboratorioRepository;
-	
+	private MedicamentoService medicamentoService;
 
+	@ApiOperation(value="retorna lista de medicamentos")
 	@GetMapping
 	public List<MedicamentoDto> lista() 
 	{
-		List<Medicamento> medicamentos = medicamentoRepository.findAll();
-		return MedicamentoDto.converter(medicamentos);
-
+		return medicamentoService.lista();
 	}
 
-
-
+	@ApiOperation(value="Insere um medicamento no banco de dados")
 	@PostMapping
-	@Transactional
-	public ResponseEntity<MedicamentoDto> cadastrar(@RequestBody @Valid MedicamentoForm form, UriComponentsBuilder uriBuilder) {		
-		Medicamento medicamento = form.converter(grupoMedicamentoRepository, laboratorioRepository);	
-		
-		List<Medicamento> listaMedicamentos = medicamentoRepository.findAll();
-
-		try 
-		{//metodo q joga excecao se for igual
-			validaUnico(listaMedicamentos, medicamento);
-			medicamentoRepository.save(medicamento);
-			URI uri = uriBuilder.path("/medicamentos/{id}").buildAndExpand(medicamento.getId()).toUri();
-			return ResponseEntity.created(uri).body(new MedicamentoDto(medicamento));		
-		}
-		catch(RuntimeException ex)
-		{//deixei o badRequest provisoriamente
-			return ResponseEntity.badRequest().build();
-		}		
-	
+	public ResponseEntity<MedicamentoDto> cadastrar(@RequestBody @Valid MedicamentoForm form, UriComponentsBuilder uriBuilder) 
+	{		
+		return medicamentoService.cadastrar(form, uriBuilder);	
 	}
 
-	
-	private void validaUnico (List<Medicamento> listaMedicamentos, Medicamento medicamento) 
-	throws RuntimeException{
-		RuntimeException ex = new RuntimeException();
-		for(Medicamento item : listaMedicamentos)
-		{
-			if (item.getNome().equals(medicamento.getNome())&&
-				item.getGrupoMedicamento().getId() == medicamento.getGrupoMedicamento().getId()	&&
-				item.getLaboratorio().getId() == medicamento.getLaboratorio().getId()) 
-			{
-				throw ex;
-			}
-		}			
-	}
-
-
-
-	//@PutMapping("/{id}")
-	@PutMapping("editar/{id}")
-	@Transactional //comita no final do metodo
+	@ApiOperation(value="Edita um medicamento do banco de dados")
+	@PutMapping("/{id}")
 	public ResponseEntity<MedicamentoDto> atualizar(@PathVariable Long id, @RequestBody @Valid AtualizacaoMedicamentoForm form)
 	{
-		Optional<Medicamento> optional = medicamentoRepository.findById(id);
-		if (optional.isPresent())
-		{
-			Medicamento medicamento = form.atualizar(id, medicamentoRepository);
-			return ResponseEntity.ok(new MedicamentoDto(medicamento));
-		}
-		return ResponseEntity.notFound().build();
+		return medicamentoService.atualizar(id,form);
 	}
 
+	@ApiOperation(value="Exclui um medicamento do banco de dados")
 	@DeleteMapping("/{id}")
-	@Transactional //comita no final do metodo
 	public ResponseEntity<?> remover(@PathVariable Long id)
 	{
-		Optional<Medicamento> optional = medicamentoRepository.findById(id);
-		if (optional.isPresent())
-		{
-			medicamentoRepository.deleteById(id);
-			return ResponseEntity.ok().build();
-		}
-		return ResponseEntity.notFound().build();
+		return medicamentoService.remover(id);
 	}
 
 }
