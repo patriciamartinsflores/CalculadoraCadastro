@@ -11,7 +11,7 @@ import br.com.unknown.cadmed.repository.LaboratorioRepository;
 
 public class LaboratorioForm 
 {
-	@NotBlank @Length(min=2)
+	@NotBlank @Length(min=3)
     private String nome;
 	
 	public String getNome() {

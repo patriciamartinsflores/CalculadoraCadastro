@@ -25,7 +25,6 @@ import br.com.unknown.cadmed.service.MedicamentoService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import br.com.unknown.cadmed.controller.dto.MedicamentoDto;
-import br.com.unknown.cadmed.controller.form.AtualizacaoMedicamentoForm;
 import br.com.unknown.cadmed.controller.form.MedicamentoForm;
 
 
@@ -53,7 +52,7 @@ public class MedicamentosController {
 
 	@ApiOperation(value="Edita um medicamento do banco de dados")
 	@PutMapping("/{id}")
-	public ResponseEntity<MedicamentoDto> atualizar(@PathVariable Long id, @RequestBody @Valid AtualizacaoMedicamentoForm form)
+	public ResponseEntity<MedicamentoDto> atualizar(@PathVariable Long id, @RequestBody @Valid MedicamentoForm form)
 	{
 		return medicamentoService.atualizar(id,form);
 	}

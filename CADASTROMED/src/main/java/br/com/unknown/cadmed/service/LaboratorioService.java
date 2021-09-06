@@ -36,7 +36,7 @@ public class LaboratorioService
 			Laboratorio laboratorio = laboratorioRepository.findByNome(form.getNome());
 			
 			if (laboratorio != null)
-				throw new RuntimeException("Impossível cadastrar Laboratorio ja existente!");		
+				throw new RuntimeException("Impossível cadastrar dois laboratórios com o mesmo nome!");		
 
 			Laboratorio lab = form.converter();
 			laboratorioRepository.save(lab);
@@ -55,7 +55,7 @@ public class LaboratorioService
 			List <Laboratorio> listaLaboratorios = laboratorioRepository.findAll();
 			for(Laboratorio item : listaLaboratorios) 
 				if(form.getNome().equals(item.getNome()) && id != item.getId()) 
-					throw new RuntimeException();
+					throw new RuntimeException("Impossível cadastrar dois laboratórios com o mesmo nome!");
 
 			Laboratorio laboratorio = form.atualizar(id, laboratorioRepository);
 			return ResponseEntity.ok(new LaboratorioDto(laboratorio));

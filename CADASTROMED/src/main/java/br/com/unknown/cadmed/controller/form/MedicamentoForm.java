@@ -1,7 +1,6 @@
 package br.com.unknown.cadmed.controller.form;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 
 import org.hibernate.validator.constraints.Length;
 
@@ -10,22 +9,21 @@ import br.com.unknown.cadmed.modelo.Laboratorio;
 import br.com.unknown.cadmed.modelo.Medicamento;
 import br.com.unknown.cadmed.repository.GrupoMedicamentoRepository;
 import br.com.unknown.cadmed.repository.LaboratorioRepository;
+import br.com.unknown.cadmed.repository.MedicamentoRepository;
 
 
 public class MedicamentoForm 
 {
-	@NotNull @NotEmpty @Length(min=5)
+	@NotBlank @Length(min=3)
     private String nome;
 	
-	@NotNull @NotEmpty 
+	@NotBlank @Length(min=3)
     private String nomeLaboratorio;
 	
-	@NotNull @NotEmpty 
+	@NotBlank @Length(min=3)
     private String nomeGrupoMedicamento;
     
-    
 
-	
 	public String getNome() {
 		return nome;
 	}
@@ -71,5 +69,15 @@ public class MedicamentoForm
 		Laboratorio laboratorio = laboratorioRepository.findByNome(nomeLaboratorio);
 		GrupoMedicamento grupoMedicamento = grupoMedicamentoRepository.findByNome(nomeGrupoMedicamento);
 	    return new Medicamento(nome, laboratorio, grupoMedicamento);
+	}
+	
+	public Medicamento atualizar(Long id, MedicamentoRepository medicamentoRepository, LaboratorioRepository laboratorioRepository, GrupoMedicamentoRepository grupoMedicamentoRepository) 
+	{
+		Medicamento medicamento = medicamentoRepository.getOne(id);
+		medicamento.setNome(this.nome);
+		medicamento.setLaboratorio(laboratorioRepository.findByNome(nomeLaboratorio));
+		medicamento.setGrupoMedicamento(grupoMedicamentoRepository.findByNome(nomeGrupoMedicamento));
+		
+		return medicamento;
 	}
 }

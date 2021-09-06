@@ -37,7 +37,7 @@ public class GrupoMedicamentoService
 		GrupoMedicamento grupoMedicamento = grupoMedicamentoRepository.findByNome(form.getNome());
 			
 			if (grupoMedicamento != null)
-				throw new RuntimeException("Impossível cadastrar Grupo ja existente!");		
+				throw new RuntimeException("Impossível cadastrar dois laboratórios com o mesmo nome!");		
 
 			GrupoMedicamento grupo = form.converter();
 			grupoMedicamentoRepository.save(grupo);
@@ -56,7 +56,7 @@ public class GrupoMedicamentoService
 			List <GrupoMedicamento> listaGrupos = grupoMedicamentoRepository.findAll();
 			for(GrupoMedicamento item : listaGrupos) 
 				if(form.getNome().equals(item.getNome()) && id != item.getId()) 
-					throw new RuntimeException();
+					throw new RuntimeException("Impossível cadastrar dois laboratórios com o mesmo nome!");
 
 			GrupoMedicamento grupoMedicamento = form.atualizar(id, grupoMedicamentoRepository);
 			return ResponseEntity.ok(new GrupoMedicamentoDto(grupoMedicamento));
